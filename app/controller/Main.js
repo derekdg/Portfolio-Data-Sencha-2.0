@@ -10,6 +10,7 @@ Ext.define('PortfolioApp.controller.Main', {
 		],
 		
 		launch: function() {
+
 			this.checkLogin();
 		},
     
@@ -19,7 +20,6 @@ Ext.define('PortfolioApp.controller.Main', {
 				main: 'mainview',
 				loginForm: 'loginform',
 				portfolioList: 'portfolios'
-				
 			},
 			
 			control: {
@@ -40,11 +40,11 @@ Ext.define('PortfolioApp.controller.Main', {
 		checkLogin: function() {
 			
 			globalToken = google.accounts.user.checkLogin(scope);
-
+			
 			if (globalToken.length > 0) {
 				this.loadPortfolios();
 			} else {
-				this.loadLoginForm();
+				//this.getViewport().show();
 			}
 			
 		},
@@ -59,7 +59,7 @@ Ext.define('PortfolioApp.controller.Main', {
 		},
 
 		onMainPop: function(view, item) {
-		   alert('pop');
+		   
 		},
 		
 		onLoginTap: function() {
@@ -72,7 +72,9 @@ Ext.define('PortfolioApp.controller.Main', {
 		
 		onLogoutTap: function() {
 			
-			google.accounts.user.logout();
+			if (google.accounts.user.checkLogin(scope)) {
+    				google.accounts.user.logout();
+  			}
 			
 			var t = this;
 			
@@ -91,7 +93,7 @@ Ext.define('PortfolioApp.controller.Main', {
 			
 			console.log(this.getViewport().getActiveItem());
 			this.getViewport().getActiveItem().setActiveItem(this.loginForm);
-			this.getViewport().show();
+			
 		
 		},
 		 
@@ -103,22 +105,24 @@ Ext.define('PortfolioApp.controller.Main', {
 		if (!this.portfolioList) {
 			this.portfolioList = Ext.create('PortfolioApp.view.Portfolios');
 		}
-			  
-		// Get the Portfolio List from Google:
-		this.makeAjaxRequest(this);
-		
-		// Transition to the View:
-		this.getViewport().getActiveItem().setActiveItem(this.main);
 		this.getViewport().show();
 		
+		// Transition to the View:
+		this.getViewport().getActiveItem().setActiveItem(this.main).show();
+		
+		// Get the Portfolio List from Google:
+		this.makeAjaxRequest(this);
+	
 	  },
 	
 	makeAjaxRequest: function(e) {
-	
-		//this.portfolioList.setMasked({
-    //        xtype: 'loadmask',
-    //        message: 'Loading...'
-    //    });
+
+		var portList = this.main;
+		
+		portList.setMasked({
+            xtype: 'loadmask',
+            message: 'Loading...'
+        });
 
         
 		var d = [];
@@ -174,8 +178,8 @@ Ext.define('PortfolioApp.controller.Main', {
 			e.getPortfolioList().setData(d);
 			e.getPortfolioList().refresh();
 	
-			
-			 //this.portfolioList.setMasked(false);
+			//Remove the mask:
+			portList.setMasked(false);
 			
 		};
 	
@@ -183,6 +187,7 @@ Ext.define('PortfolioApp.controller.Main', {
 		// FinanceService methods may be supplied with an alternate callback for errors
 		var handleErrorCallback = function(error) {
 		  console.log(error);
+		  alert(error);
 		};
 	
 		console.log('Retrieving a list of the user portfolios...');
@@ -195,7 +200,20 @@ Ext.define('PortfolioApp.controller.Main', {
 	} //makeAjaxRequest
 	
 });
+function handleInfo(data) {
+    var response = eval(data.currentTarget.responseText);
 
+    alert('Target: ' + response.Target + "\n" +
+          'Scope: ' + response.Scope + "\n" +
+          'Secure: ' + response.Secure);
+}
+
+function doGetInfo() {
+  //scope = "http://www.google.com/calendar/feeds";
+  if (google.accounts.user.checkLogin(scope)) {
+    google.accounts.user.getInfo(handleInfo);
+  }
+}
 
 
 //Function to return a blank if a value is null.

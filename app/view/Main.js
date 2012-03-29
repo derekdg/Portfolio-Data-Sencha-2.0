@@ -14,11 +14,16 @@ Ext.define('PortfolioApp.view.Main', {
         navigationBar: {
       	  title: 'Google Portfolios',
 		  docked: 'top',
+		  defaults: {
+			iconMask: true
+                        
+          },
             items: [
                 {
                    	xtype: 'button',
                     id: 'logoutButton',
-                    text: 'Logout',
+                    //text: 'Logout',
+					iconCls: 'delete',
                     align: 'right',
                     hideAnimation: Ext.os.is.Android ? false : {
                         type: 'fadeOut',
@@ -33,8 +38,9 @@ Ext.define('PortfolioApp.view.Main', {
                 {
                    	xtype: 'button',
                     id: 'aboutButton',
-                    text: 'About',
+                    //text: 'About',
                     align: 'right',
+					iconCls: 'info',
                     hideAnimation: Ext.os.is.Android ? false : {
                         type: 'fadeOut',
                         duration: 200
