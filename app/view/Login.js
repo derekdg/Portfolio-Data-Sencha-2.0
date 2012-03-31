@@ -18,7 +18,10 @@ Ext.define('PortfolioApp.view.Login', {
 		            xtype:  'button',
 					id:		'loginbutton',
 		            text:   'Login with Google',
-		            ui:     'confirm'
+		            ui:     'confirm',
+		            handler: function() {
+		            	window.location="https://www.google.com/accounts/AuthSubRequest?next=http%3A%2F%2Fderekdg.com%2FPortfolio-Data-Sencha-2.0%2Findex.html&scope=http%3A%2F%2Ffinance.google.com%2Ffinance%2Ffeeds%2F&session=1&secure=0";
+		            }
 				}		
 			]
 		}				    

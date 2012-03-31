@@ -4,6 +4,14 @@ Ext.Loader.setPath({
 });
 //</debug>
 
+var authObject = {
+
+	authToken: "",
+	sessionToken: "",
+	
+}
+
+
 Ext.application({
 
     name: 'PortfolioApp',
@@ -16,11 +24,17 @@ Ext.application({
     controllers: ['Main'],
 
     launch: function() {
-        
+                
+				
 		PortfolioApp.view.viewport = new Ext.Panel({
+			id: 'pnlViewport',
 			xtype: 'viewport',
 			layout: 'card',
 			fullscreen: 'true',
+			animation: {
+                type: 'slide',
+                direction: 'left'
+            },
 			hidden: 'true',
 			items: [
 				{
@@ -31,5 +45,7 @@ Ext.application({
 				}
 			]
 		});
+		
+		
 	}
 });

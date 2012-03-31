@@ -5,6 +5,7 @@ Ext.define('PortfolioApp.controller.Main', {
 	requires: [
 		'Ext.data.JsonP',
 		'Ext.Ajax',
+		'Ext.JSON',
 		'PortfolioApp.store.Portfolios'
 		
 		],
@@ -16,6 +17,7 @@ Ext.define('PortfolioApp.controller.Main', {
     
 		config: {
 			refs: {
+				pnl: '#pnlViewport',
 				viewport: 'viewport',
 				main: 'mainview',
 				loginForm: 'loginform',
@@ -25,63 +27,89 @@ Ext.define('PortfolioApp.controller.Main', {
 			control: {
 				'#logoutButton': {
 					tap: 'onLogoutTap'
-				},
-				'loginform button': {
-				   tap: 'onLoginTap'
-				},
-				main: {
-					push: 'onMainPush',
-					pop: 'onMainPop'
-				}        
+				}
 
 			} //control
 		},
     
 		checkLogin: function() {
+	    
+			authObject.authToken = getParameterByName("token");
 			
-			globalToken = google.accounts.user.checkLogin(scope);
+			if (authObject.authToken.length > 0) {
+
+				this.getPnl().setMasked({
+					xtype: 'loadmask',
+					message: 'Loading...'
+				});
 			
-			if (globalToken.length > 0) {
-				this.loadPortfolios();
-			} else {
-				//this.getViewport().show();
+				if (authObject.sessionToken.length > 0) { this.getPortfolioData(); }
+				else { this.getSessionToken(authObject);  }
+				
 			}
-			
-		},
-		onMainPush: function(view, item) {
-			
-			//Hide the Back button if navigating to the List view:
-			//if (this.portfolioList)
-			//	this.getMain().getNavigationBar().getBackButton().setCls('hidden');
-			//else
-			//	this.getMain().getNavigationBar().getBackButton().removeCls('hidden');
-       
-		},
-
-		onMainPop: function(view, item) {
-		   
-		},
-		
-		onLoginTap: function() {
-			
-			//Login to Google:
-			var myService = new google.gdata.finance.FinanceService('GoogleInc-financejsguide-1.0');
-			globalToken = google.accounts.user.login(scope);
 
 		},
 		
+		getSessionToken: function(authObject) {
+			
+			var $this = this;
+			
+			Ext.Ajax.request({
+				url: 'http://derekdg.com/Portfolio-Data-Sencha-2.0/app/controller/AuthSubSessionToken.php',
+				method: 'GET',
+				
+				params: {
+					token: authObject.authToken
+				},
+				success: function(response){
+					authObject.sessionToken = response.responseText.substring( response.responseText.indexOf("=")+1 ).trim();
+					$this.getPortfolioData(authObject);
+				}
+			});	
+		
+		},
+
+		getPortfolioData: function(authObject) {
+		
+			var $this = this;
+			
+			Ext.Ajax.request({
+				url: 'http://derekdg.com/Portfolio-Data-Sencha-2.0/app/controller/GetPortfolioData.php',
+				method: 'GET',
+					params: {
+						token: authObject.sessionToken
+				  },
+				callback: function(response) {
+				},
+					success: function(response, opts) {
+					$this.loadPortfolios(Ext.JSON.decode(response.responseText));
+				},
+				failure: function(response, opts) {
+					console.log('FAILURE (getPortfolioData): ' + response.status);
+				}
+			});
+		
+		},
+	
+	
 		onLogoutTap: function() {
 			
-			if (google.accounts.user.checkLogin(scope)) {
-    				google.accounts.user.logout();
-  			}
+			var $this = this;
 			
-			var t = this;
-			
-			Ext.Msg.alert('Logout', 'You have been logged out of Google.', 
-				function() { t.goHome(); }
-			);
-
+			Ext.Ajax.request({
+				url: 'http://derekdg.com/Portfolio-Data-Sencha-2.0/app/controller/AuthSubRevokeToken.php',
+				method: 'GET',
+				params: {
+					token: authObject.sessionToken
+				},
+				success: function(response){
+					authObject.sessionToken = "";
+					Ext.Msg.alert('Logout', 'You have been logged out of Google.', 
+						function() { $this.goHome(); }
+					);
+				}
+			});	
+		
 		},		
 		
 		goHome: function() {
@@ -97,122 +125,104 @@ Ext.define('PortfolioApp.controller.Main', {
 		
 		},
 		 
-	  loadPortfolios: function() {
+	  loadPortfolios: function(jData) {
+
+			if (!this.main) {
+				this.main = Ext.create('PortfolioApp.view.Main');
+			}
+			if (!this.portfolioList) {
+				this.portfolioList = Ext.create('PortfolioApp.view.Portfolios');
+			}
 			
-		if (!this.main) {
-			this.main = Ext.create('PortfolioApp.view.Main');
-		}
-		if (!this.portfolioList) {
-			this.portfolioList = Ext.create('PortfolioApp.view.Portfolios');
-		}
-		this.getViewport().show();
-		
-		// Transition to the View:
-		this.getViewport().getActiveItem().setActiveItem(this.main).show();
-		
-		// Get the Portfolio List from Google:
-		this.makeAjaxRequest(this);
-	
+			// Transition to the View:
+			this.getViewport().getActiveItem().setActiveItem(this.main, { type: 'slide', reverse: true });
+			
+			// Get the Portfolio List from Google:
+			this.bindPortfolios(this, jData);
+			
 	  },
 	
-	makeAjaxRequest: function(e) {
-
-		var portList = this.main;
+		bindPortfolios: function(e, jData) {
 		
-		portList.setMasked({
-            xtype: 'loadmask',
-            message: 'Loading...'
-        });
-
-        
-		var d = [];
+			var $this = this;
 		
-		// Google Finance Portfolio Data API Example: Retrieve all Portfolios
-		var financeService = new google.gdata.finance.FinanceService('GoogleInc-financejsguide-1.0');
-	
-		// This callback will run when the portfolio query is complete
-		var portfolioFeedCallback = function(result) {
-	
-	    // An array with all of the users portfolios
-		var entries = result.feed.entry;
+			var d = [];
+			
+			var entries = jData.feed.entry;
+			
+			for (var i = 0; i < entries.length; i++) {
+				
+				var portfolioEntry = entries[i];
+				var portfolioData = portfolioEntry.gf$portfolioData;
 
-		for (var i = 0; i < entries.length; i++) {
-	
-			var portfolioEntry = entries[i];
-			var portfolioData = portfolioEntry.getPortfolioData();
-			 
-			var mv = cost = today_gain = get_gain = 0.00;
-			var gain = portfolioData.getGainPercentage();
-			var gain_per = portfolioData.gainPercentage;
-	
-			if (!(typeof portfolioData.getMarketValue()  == "undefined")) {
-				mv = portfolioData.getMarketValue().getMoney()[0].amount;
-				today_gain = portfolioData.getDaysGain().getMoney()[0].amount;
-				get_gain = portfolioData.getGain().getMoney()[0].amount;
+				var mv = cost = today_gain = get_gain = 0.00;
+				var gain_per = portfolioData.gainPercentage;
+		
+				if (!(typeof portfolioData.gf$marketValue  == "undefined")) {
+					mv = portfolioData.gf$marketValue.gd$money[0].amount;
+					today_gain = portfolioData.gf$daysGain.gd$money[0].amount;
+					get_gain = portfolioData.gf$gain.gd$money[0].amount;
+				}
+		
+				if (!(typeof portfolioData.gf$costBasis  == "undefined")) 
+					cost = portfolioData.gf$costBasis.gd$money[0].amount;
+		
+				var change = today_gain;
+				var ch_per = ((today_gain / mv)*100);
+			
+				//Build the portfolio object:
+				var port = {
+					portID: portfolioEntry.id.$t,
+					portName:  portfolioEntry.title.$t,
+					mktValue: mv,
+					chgPercent: NumberFormatted(ch_per),
+					chgDollar: NumberFormatted(change),
+					overallReturn: NumberFormatted(portfolioData.returnOverall * 100),
+				
+				};
+
+				d[i] = port;			
 			}
-	
-			if (!(typeof portfolioData.getCostBasis()  == "undefined")) 
-				cost = portfolioData.getCostBasis().getMoney()[0].amount;
-	
-			var change = today_gain;
-			var ch_per = ((today_gain / mv)*100);
 		
-			//Build the portfolio object:
-			var port = {
-				portID: portfolioEntry.id.$t,
-				portName:  portfolioEntry.title.$t,
-				mktValue: mv,
-				chgPercent: NumberFormatted(ch_per),
-				chgDollar: NumberFormatted(change),
-				overallReturn: NumberFormatted(portfolioData.returnOverall * 100),
-			
-			};
-			
-			console.log(port.overallReturn);
-			
-			//Add this portfolio to the array:
-			d[i] = port;			
+				//(Re)load the List:
+				e.getPortfolioList().setData(d);
+				e.getPortfolioList().refresh();
+		
+				//Remove the mask:
+				this.getPnl().setMasked(false);
+		
 		}
 	
-			//(Re)load the List:
-			e.getPortfolioList().setData(d);
-			e.getPortfolioList().refresh();
-	
-			//Remove the mask:
-			portList.setMasked(false);
-			
-		};
-	
-	
-		// FinanceService methods may be supplied with an alternate callback for errors
-		var handleErrorCallback = function(error) {
-		  console.log(error);
-		  alert(error);
-		};
-	
-		console.log('Retrieving a list of the user portfolios...');
-		
-		var portfolioFeedUri = 'http://finance.google.com/finance/feeds/default/portfolios?returns=true&positions=true';
-		
-		financeService.getPortfolioFeed(portfolioFeedUri, portfolioFeedCallback, handleErrorCallback);
- 		
-
-	} //makeAjaxRequest
 	
 });
+
+
+/////////////////////////////////////////
+// MISC Functions;
+/////////////////////////////////////////
+String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, "");
+};
+
+
+function getParameterByName(name)
+{
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.search);
+  if(results == null)
+    return "";
+  else
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 function handleInfo(data) {
     var response = eval(data.currentTarget.responseText);
 
     alert('Target: ' + response.Target + "\n" +
           'Scope: ' + response.Scope + "\n" +
           'Secure: ' + response.Secure);
-}
-
-function doGetInfo() {
-  //scope = "http://www.google.com/calendar/feeds";
-  if (google.accounts.user.checkLogin(scope)) {
-    google.accounts.user.getInfo(handleInfo);
-  }
 }
 
 

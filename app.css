@@ -1,3 +1,13 @@
+.x-list-item h3 {
+	color: #000000;
+	font-size:0.8em;
+	margin-bottom: 5px;
+}
+.x-list-item h4 {
+	color: #8F8F8F;
+	font-size:0.7em;
+}
+
 .hidden {
 	margin-left:-1000em ! important;
 }
