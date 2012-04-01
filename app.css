@@ -2,10 +2,13 @@
 	color: #000000;
 	font-size:0.8em;
 	margin-bottom: 5px;
+	font-weight: bold;
 }
 .x-list-item h4 {
 	color: #8F8F8F;
+	margin-bottom: 5px;
 	font-size:0.7em;
+	font-weight: bold;
 }
 
 .hidden {
@@ -78,19 +81,21 @@
 .dd-per-gain {
 	color: #70AE3B;
 	font-weight: bold;
-	font-family: Helvetica;
+	font-size:0.7em;
 }
 .dd-per-loss {
 	color: #f31900;
 	font-weight: bold;
-	font-family: Helvetica;
+	font-size:0.7em;
 }
 
 .dd-detail-label {
-	font-size: 12px;
-	font-weight:bold;
+	font-size:0.7em;
+	font-weight:normal;
 	padding-right: 2px;
-	font-family: Helvetica;
+	color: #8F8F8F;
+	margin-bottom: 5px;
+    margin-right: 5px;
 }
 .dd-detail-data {
 	font-weight: normal;

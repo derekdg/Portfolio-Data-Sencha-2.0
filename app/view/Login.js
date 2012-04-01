@@ -11,7 +11,36 @@ Ext.define('PortfolioApp.view.Login', {
 				{
 					xtype: 'titlebar',
 					docked: 'top',
-					title: 'Google Finance'
+					title: 'Google Finance',
+					items: [
+						{
+							xtype: 'button',
+							id: 'aboutButton',
+							text: 'About',
+							align: 'right',
+							//iconCls: 'info',
+							hideAnimation: Ext.os.is.Android ? false : {
+								type: 'fadeOut',
+								duration: 200
+							},
+							showAnimation: Ext.os.is.Android ? false : {
+								type: 'fadeIn',
+								duration: 200
+							},
+							handler: function () {
+			
+									// Basic alert:
+									Ext.Msg.show({
+											title: 'About Site',
+											cls: 'home',
+											message: '<p>This mobile site is a proof-of-concept, playground, etc. for accessing Google Portfolio data.</p><p>It was built using the <a href="http://www.sencha.com/" target="foo">Sencha Touch (2.0)</a> framwork and utilizes the Google Finance API to display portfolio/position/transaction data</p> ',
+											buttons: Ext.MessageBox.OK,
+											fn: Ext.emptyFn,
+											midWidth: 300
+									});
+							} //handler
+						}					
+					]
 									
 				},
 				{

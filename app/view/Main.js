@@ -22,8 +22,8 @@ Ext.define('PortfolioApp.view.Main', {
                 {
                    	xtype: 'button',
                     id: 'logoutButton',
-                    //text: 'Logout',
-					iconCls: 'delete',
+                    text: 'Logout',
+					//iconCls: 'delete',
                     align: 'right',
                     hideAnimation: Ext.os.is.Android ? false : {
                         type: 'fadeOut',
@@ -34,8 +34,8 @@ Ext.define('PortfolioApp.view.Main', {
                         duration: 200
                     },
 									
-                },
-                {
+                }
+                /*{
                    	xtype: 'button',
                     id: 'aboutButton',
                     //text: 'About',
@@ -61,7 +61,7 @@ Ext.define('PortfolioApp.view.Main', {
 									midWidth: 300
 							});
 					} //handler
-                }                
+                }*/                
             ]
         },
 

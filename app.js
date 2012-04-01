@@ -29,6 +29,7 @@ Ext.application({
 		PortfolioApp.view.viewport = new Ext.Panel({
 			id: 'pnlViewport',
 			xtype: 'viewport',
+			background: '#ffffff',
 			layout: 'card',
 			fullscreen: 'true',
 			animation: {

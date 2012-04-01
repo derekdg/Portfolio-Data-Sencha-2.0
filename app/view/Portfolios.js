@@ -9,9 +9,16 @@ Ext.define('PortfolioApp.view.Portfolios', {
         fullscreen: true,
         itemTpl: [
 		
-			'<h3>{portName}</h3>',
-			'<h4>Return: {overallReturn}%</h4>'
+			//'<h3>{portName}</h3>',
+			//'<h4>Today: {chgDollar} ({chgPercent}%)</h4>',
+			//'<h4>Return: {overallReturn}%</h4>'
 			
+			'<h3>{portName}</h3>',
+			'<label class="dd-detail-label">Today:  </label><label class="{chgDollarClass}">{chgDollar}</label>&nbsp;<label class="{chgPercentClass}">({chgPercent}%)</label><br />',
+			'<label class="dd-detail-label">Overall:</label><label class="{overallReturnClass}">{overallReturn}%</label>'
+
+
+		
 			/*'<div class="ui-btn-inner ui-li ui-corner-top">',
 				'<div class="ui-btn-text">',
 						'<p class="ui-li-aside ui-li-desc">',

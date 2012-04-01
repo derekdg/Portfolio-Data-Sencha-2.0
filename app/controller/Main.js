@@ -18,6 +18,7 @@ Ext.define('PortfolioApp.controller.Main', {
 		config: {
 			refs: {
 				pnl: '#pnlViewport',
+				login: '#loginbutton',
 				viewport: 'viewport',
 				main: 'mainview',
 				loginForm: 'loginform',
@@ -37,7 +38,10 @@ Ext.define('PortfolioApp.controller.Main', {
 			authObject.authToken = getParameterByName("token");
 			
 			if (authObject.authToken.length > 0) {
-
+				
+				//Hide the login button:
+				this.getLogin().hide();
+				
 				this.getPnl().setMasked({
 					xtype: 'loadmask',
 					message: 'Loading...'
@@ -176,8 +180,12 @@ Ext.define('PortfolioApp.controller.Main', {
 					portName:  portfolioEntry.title.$t,
 					mktValue: mv,
 					chgPercent: NumberFormatted(ch_per),
+					chgPercentClass: GetGainLossClass(ch_per),
 					chgDollar: NumberFormatted(change),
+					chgDollarClass: GetGainLossClass(change),
 					overallReturn: NumberFormatted(portfolioData.returnOverall * 100),
+					overallReturnClass: GetGainLossClass(portfolioData.returnOverall * 100)
+					
 				
 				};
 
@@ -246,15 +254,11 @@ function addCommas(nStr) {
 }
 
 function GetGainLossClass(amount) {
-
-alert(amount);
-
 	var c = '';
 	var i = parseFloat(amount);
 	if(isNaN(i)) { i = 0.00; }
 	if(i < 0) { cl = 'dd-per-loss'; } else { cl = 'dd-per-gain'; }
 	return cl;
-
 }
 
 function FormatDate(dt) {
