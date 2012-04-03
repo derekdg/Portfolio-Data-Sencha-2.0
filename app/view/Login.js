@@ -42,7 +42,19 @@ Ext.define('PortfolioApp.view.Login', {
 						}					
 					]
 									
-				},
+				}, 
+				{
+                    title: 'Home',
+                    iconCls: 'home',
+                    cls: 'home',
+                    
+                    html: [
+                        '<h1>Welcome to Google Portfolio Playground</h1>',
+                        "<p>This mobile site is a proof-of-concept, playground, etc. for accessing the Google Finance API.</p>",
+                        '<h2>Sencha Touch (2.0.0)</h2><br /><br />'
+                    ].join("")
+                },
+				
 				{
 		            xtype:  'button',
 					id:		'loginbutton',

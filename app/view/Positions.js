@@ -6,15 +6,12 @@ Ext.define('PortfolioApp.view.Positions', {
         title: 'Positions',
         store: 'Positions',
         fullscreen: true,
+
         itemTpl: [
-			'<div>',
-			'<p><label class="dd-pos-sym">{posTicker}</label></p>',
-			'<p><label class="dd-detail-label">{posName}</label></p>',
-			'<p><label class="dd-detail-label">Shares:</label></p>',
-			'<label class="dd-detail-label">{posShares}</label></p>',
-			//'<p class="ui-li-aside"><span>{chgDollar}</span>&nbsp;&nbsp;',
-			//'<span>({chgPercent}%)</span></p>',
-			'</div>'
+		
+			'<h3>{posTicker}</h3>',
+			'<label class="dd-pos-name">{posName}</label><br />',
+			'<label class="dd-detail-label">Shares:</label><label class="dd-detail-data">{posShares}</label><label class="dd-detail-label">Return:</label><label class="{posReturnClass}">{posReturn}%</label>'
             
         ].join('')
     }

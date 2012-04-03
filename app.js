@@ -5,12 +5,9 @@ Ext.Loader.setPath({
 //</debug>
 
 var authObject = {
-
 	authToken: "",
 	sessionToken: "",
-	
 }
-
 
 Ext.application({
 
@@ -18,35 +15,15 @@ Ext.application({
 	phoneStartupScreen: 'image/phoneStart.png',
     glossOnIcon: false,
 
-    models: ['Portfolios'],
-    stores: ['Portfolios'],
+    models: ['Portfolios', 'Positions'],
+    stores: ['Portfolios', 'Positions'],
     views: ['Main', 'Login'],
     controllers: ['Main'],
 
     launch: function() {
-                
-				
-		PortfolioApp.view.viewport = new Ext.Panel({
-			id: 'pnlViewport',
-			xtype: 'viewport',
-			background: '#ffffff',
-			layout: 'card',
-			fullscreen: 'true',
-			animation: {
-                type: 'slide',
-                direction: 'left'
-            },
-			hidden: 'true',
-			items: [
-				{
-					xtype: 'loginform',
-				},
-				{
-					xtype: 'mainview'
-				}
-			]
+           
+		Ext.Viewport.add({
+			xtype: 'loginform'
 		});
-		
-		
 	}
 });
