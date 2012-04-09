@@ -15,8 +15,8 @@ Ext.application({
 	phoneStartupScreen: 'image/phoneStart.png',
     glossOnIcon: false,
 
-    models: ['Portfolios', 'Positions'],
-    stores: ['Portfolios', 'Positions'],
+    models: ['Portfolios', 'Positions', 'Transactions'],
+    stores: ['Portfolios', 'Positions', 'Transactions'],
     views: ['Main', 'Login'],
     controllers: ['Main'],
 

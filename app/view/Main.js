@@ -5,7 +5,8 @@ Ext.define('PortfolioApp.view.Main', {
 
     requires: [
     	'PortfolioApp.view.Portfolios',
-			'PortfolioApp.view.Positions'
+		'PortfolioApp.view.Positions',
+		'PortfolioApp.view.Transactions'
     ],
 		
     config: {

@@ -3,9 +3,10 @@ Ext.define('PortfolioApp.view.Positions', {
     xtype: 'positions',
 
     config: {
-        title: 'Positions',
+		title: 'Positions',
         store: 'Positions',
         fullscreen: true,
+		onItemDisclosure: true,
 
         itemTpl: [
 		

@@ -7,7 +7,8 @@ Ext.define('PortfolioApp.controller.Main', {
 		'Ext.Ajax',
 		'Ext.JSON',
 		'PortfolioApp.store.Portfolios',
-		'PortfolioApp.store.Positions'
+		'PortfolioApp.store.Positions',
+		'PortfolioApp.store.Transactions'
 	],
 		
 	launch: function() {
@@ -23,7 +24,9 @@ Ext.define('PortfolioApp.controller.Main', {
 			loginForm: 'loginform',
 			portfolioList: 'portfolios',
 			positionList: 'positions',
-			positionStore: 'positionsstore'
+			positionStore: 'positionsstore',
+			transactionList: 'transactions',
+			transactionStore: 'transactionsstore'
 		},
 		
 		control: {
@@ -32,6 +35,9 @@ Ext.define('PortfolioApp.controller.Main', {
 			},
 			'portfolios': {
 				disclose: 'showPositions'
+			},
+			'positions': {
+				disclose: 'showTransactions'
 			}
 
 		}
@@ -76,6 +82,20 @@ Ext.define('PortfolioApp.controller.Main', {
 		//this.getPositionData(record.data.portID);
 		this.getPositionData(record);
 	},
+
+	showTransactions: function(list, record) {
+
+		if (!this.transactionList) {
+			this.transactionList = Ext.create('PortfolioApp.view.Transactions');
+		}
+
+		Ext.Viewport.setMasked({
+			xtype: 'loadmask',
+			message: 'Loading...'
+		});
+
+		this.getTransactionData(record);
+	},
 	
 	getSessionToken: function(authObject) {
 		
@@ -114,7 +134,6 @@ Ext.define('PortfolioApp.controller.Main', {
 				console.log('FAILURE (getPortfolioData): ' + response.status);
 			}
 		});
-	
 	},
 
 	getPositionData: function(record) {
@@ -141,6 +160,30 @@ Ext.define('PortfolioApp.controller.Main', {
 	
 	},
 		 
+	getTransactionData: function(record) {
+	
+		var $this = this;
+		
+		Ext.Ajax.request({
+			url: 'http://derekdg.com/Portfolio-Data-Sencha-2.0/app/controller/GetTransactionData.php',
+			method: 'GET',
+			params: {
+					token: authObject.sessionToken,
+					position_id: record.data.posID
+			 },
+			callback: function(response) {
+			},
+				success: function(response, opts) {
+				$this.loadTransactions(record, Ext.JSON.decode(response.responseText));
+
+			},
+			failure: function(response, opts) {
+				console.log('FAILURE (getTransactionData): ' + response.status);
+			}
+		});
+	
+	},
+
 	loadPortfolios: function(jData) {
 
 		if (!this.main) {
@@ -193,12 +236,52 @@ Ext.define('PortfolioApp.controller.Main', {
 
 		//Remove the mask:
 		Ext.Viewport.setMasked(false);
-		
-		this.getMain().push(this.positionList, {data: record});	
+
+		this.getMain().push(this.positionList, {title: record.data.portName, data: record});	
 		
 		Ext.Viewport.setActiveItem(3);
 	
   },	  
+  
+	loadTransactions: function(record, jData) {
+		
+		var $this = this;
+		var d = [];
+		var entries = jData.feed.entry;
+		
+		this.getTransactionList().getStore().removeAll();
+		this.getTransactionList().getStore().sync();
+		
+		for (var i = 0; i < entries.length; i++) {
+			
+			var transactionEntry = entries[i];
+			var transactionData = transactionEntry.gf$transactionData;
+
+			//Build the portfolio object:
+			var tran = {
+				tranID: transactionEntry.id.$t,
+				tranType: transactionData.type,
+				tranShares: NumberFormatted(transactionData.shares),
+				tranPrice: NumberFormatted(transactionData.gf$price.gd$money[0].amount),
+				tranDate: FormatLongDate(transactionData.date)
+			};
+
+			d[i] = tran;			
+		
+		} //for
+
+		//(Re)load the List:
+		this.getTransactionList().setData(d);
+		this.getTransactionList().refresh();
+
+		//Remove the mask:
+		Ext.Viewport.setMasked(false);
+		
+		this.getMain().push(this.transactionList, {data: record});	
+		
+		Ext.Viewport.setActiveItem(4);
+	
+	},  
 	
 	bindPortfolios: function(e, jData) {
 	
@@ -349,6 +432,12 @@ function FormatDate(dt) {
 	var curr_year = dt.getFullYear();
 	d = curr_month + '/'+ curr_date + '/'+ curr_year;
 	return d;
+
+}
+
+function FormatLongDate(dt) {
+
+	return dt.substring(5,7) + '/' + dt.substring(8,10) + '/' + dt.substring(0,4);
 
 }
 

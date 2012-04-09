@@ -6,7 +6,7 @@ Web Site Overview
 This mobile site is a proof-of-concept, playground, etc. for accessing the Google Finance API. After user authentication, the page flow is as follows:
 1. Home page lists the user's Google Finance portfolios
 2. Next page lists the selected portfolio's positions 
-3. Final page lists the selected position's transactions (not yet developed)
+3. Final page lists the selected position's transactions
 
 Technology
 
