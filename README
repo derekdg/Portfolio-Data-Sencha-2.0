@@ -12,7 +12,7 @@ Technology
 
 Framework: Sencha Touch 2.0
 Authentication: Uses the Google AuthSub authorization process
-Stock Data: Uses Yahoo! Query Language (YQL) to get the last trade information on the positions (not yet developed)
+Stock Data: Uses Yahoo! Query Language (YQL) to get the last trade information on the positions
 
 
 Disclaimer!

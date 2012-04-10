@@ -10,7 +10,11 @@ Ext.define('PortfolioApp.model.Positions', {
 				{ name: 'posReturnClass', type: 'string' },
 				{ name: 'posDailyDollarChange', type: 'float' },
 				{ name: 'posDailyPercentChange', type: 'float' },
-				{ name: 'posLast', type: 'float'}
+				{ name: 'posLastTrade', type: 'float'},
+				{ name: 'posPercentChange', type: 'string'},
+				{ name: 'posPercentChangeClass', type: 'string'},
+				{ name: 'posDollarChange', type: 'string'},
+				{ name: 'posDollarChangeClass', type: 'string'}
 			]
     }
 });

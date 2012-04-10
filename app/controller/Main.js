@@ -207,39 +207,90 @@ Ext.define('PortfolioApp.controller.Main', {
 		var $this = this;
 		var d = [];
 		var entries = jData.feed.entry;
+
 		
-		this.getPositionList().getStore().removeAll();
-		this.getPositionList().getStore().sync();
+		var tickerList = "";
+		var	yqlURL = "http://query.yahooapis.com/v1/public/yql?q=";
+		var dataFormat = "&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+		var rtQuoteData;
 		
-		for (var i = 0; i < entries.length; i++) {
+		//Loop through and get a list of tickers to pass to the YQL call:
+		for (var j = 0; j < entries.length; j++) {
+			tickerList = tickerList +  entries[j].gf$symbol.symbol + ", ";
+		}		
+		
+		var options = {};
+		var queryString = "select * from yahoo.finance.quotes where symbol in ('" + tickerList + "')";
+		console.log(queryString);
+
+		//make the YQL request
+		Ext.YQL.request({
+		
+			//query: options.query,
+			query: queryString,
+
+			//and give it a callback when the response comes back
+			callback: function(success, response) {
+				var results = [];
+					
+				if (response.query && response.query.results) {
+
+					rtQuoteData = response.query.results.quote;
 			
-			var positionEntry = entries[i];
-			var positionData = positionEntry.gf$positionData;
+					$this.getPositionList().getStore().removeAll();
+					$this.getPositionList().getStore().sync();
+					
+					for (var i = 0; i < entries.length; i++) {
+						
+						var positionEntry = entries[i];
+						var positionData = positionEntry.gf$positionData;
 
-			//Build the portfolio object:
-			var pos = {
-				posID: positionEntry.id.$t,
-				posTicker: positionEntry.gf$symbol.symbol,
-				posName:  positionEntry.title.$t,
-				posShares: positionData.shares,
-				posReturn: NumberFormatted(positionData.gainPercentage * 100),
-				posReturnClass: GetGainLossClass(positionData.gainPercentage * 100)
-			};
+						//Loop thru the RT Quote data to get the price info:	
+						var lastTradePrice, percentChange, changeRT;
+						
+						for (var j = 0; j < rtQuoteData.length; j++) {
+							if (rtQuoteData[j].symbol == positionEntry.gf$symbol.symbol) {
+								lastTradePrice = rtQuoteData[j].LastTradePriceOnly;
+								percentChange = rtQuoteData[j].PercentChange;
+								changeRT = rtQuoteData[j].ChangeRealtime;
+							}
+						} //for
+						
+						//Build the portfolio object:
+						var pos = {
+							posID: positionEntry.id.$t,
+							posTicker: positionEntry.gf$symbol.symbol,
+							posName:  positionEntry.title.$t,
+							posShares: positionData.shares,
+							posReturn: NumberFormatted(positionData.gainPercentage * 100),
+							posReturnClass: GetGainLossClass(positionData.gainPercentage * 100),
+							posLastTrade: NumberFormatted(lastTradePrice),
+							posPercentChange: NumberFormatted(percentChange, true),
+							posDollarChange: NumberFormatted(changeRT, true),
+							posPercentChangeClass: GetGainLossClass(percentChange),
+							posDollarChangeClass: GetGainLossClass(changeRT)
+						};
 
-			d[i] = pos;			
-		
-		} //for
+						d[i] = pos;			
+					
+					} //for
 
-		//(Re)load the List:
-		this.getPositionList().setData(d);
-		this.getPositionList().refresh();
+					//(Re)load the List:
+					$this.getPositionList().setData(d);
+					$this.getPositionList().refresh();
 
-		//Remove the mask:
-		Ext.Viewport.setMasked(false);
+					//Remove the mask:
+					Ext.Viewport.setMasked(false);
 
-		this.getMain().push(this.positionList, {title: record.data.portName, data: record});	
-		
-		Ext.Viewport.setActiveItem(3);
+					$this.getMain().push($this.positionList, {title: record.data.portName, data: record});	
+					
+					Ext.Viewport.setActiveItem(3);
+				
+				} //if
+
+			} //callback
+			
+		});	//YQL	
 	
   },	  
   
@@ -368,6 +419,34 @@ Ext.define('PortfolioApp.controller.Main', {
 	}
 	
 });
+
+/**
+ * This is a simple wrapper of the Ext.data.JsonP class to help make YQL queries easier.
+ */
+Ext.YQL = {
+    useAllPublicTables: true,
+    yqlUrl: 'http://query.yahooapis.com/v1/public/yql',
+    request: function(config) {
+		
+        //get the params for the request
+        var params = config.params || {};
+        params.q = config.query;
+        params.format = 'json';
+
+        if (this.useAllPublicTables) {
+            params.env = 'store://datatables.org/alltableswithkeys';
+        }
+
+        Ext.data.JsonP.request({
+            url: this.yqlUrl,
+            callbackKey: 'callback',
+            params: params,
+            callback: config.callback,
+            scope: config.scope || window
+        });
+    }
+};
+
 
 
 /////////////////////////////////////////
