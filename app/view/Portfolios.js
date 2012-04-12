@@ -7,7 +7,8 @@ Ext.define('PortfolioApp.view.Portfolios', {
         title: 'Portfolios',
         store: 'Portfolios',
         fullscreen: true,
-		onItemDisclosure: true,
+				onItemDisclosure: true,
+				selectedCls: '',
         itemTpl: [
 			'<h3>{portName}</h3>',
 			'<label class="dd-detail-label">Today:  </label><label class="{chgDollarClass}">{chgDollar}</label>&nbsp;<label class="{chgPercentClass}">({chgPercent}%)</label><br />',

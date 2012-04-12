@@ -6,7 +6,8 @@ Ext.define('PortfolioApp.view.Positions', {
 		title: 'Positions',
         store: 'Positions',
         fullscreen: true,
-		onItemDisclosure: true,
+				onItemDisclosure: true,
+				selectedCls: '',
 
         itemTpl: [
 		
