@@ -34,16 +34,17 @@ Ext.define('PortfolioApp.controller.Main', {
 				tap: 'onLogoutTap'
 			},
 			'portfolios': {
-				disclose: 'showPositions'
+				//disclose: 'showPositions',
+				itemtap: 'showPositions'
 			},
 			'positions': {
-				disclose: 'showTransactions'
+				//disclose: 'showTransactions',
+				itemtap: 'showTransactions'
 			}
 
 		}
 	},
-
-
+	
 	checkLogin: function() {
 	
 		authObject.authToken = getParameterByName("token");
@@ -68,7 +69,7 @@ Ext.define('PortfolioApp.controller.Main', {
 
 	},
 			
-	showPositions: function(list, record) {
+	showPositions: function(list, index, target, record, e) {
 		
 		if (!this.positionList) {
 			this.positionList = Ext.create('PortfolioApp.view.Positions');
@@ -79,11 +80,10 @@ Ext.define('PortfolioApp.controller.Main', {
 			message: 'Loading...'
 		});
 
-		//this.getPositionData(record.data.portID);
 		this.getPositionData(record);
 	},
 
-	showTransactions: function(list, record) {
+	showTransactions: function(list, index, target, record, e) {
 
 		if (!this.transactionList) {
 			this.transactionList = Ext.create('PortfolioApp.view.Transactions');
