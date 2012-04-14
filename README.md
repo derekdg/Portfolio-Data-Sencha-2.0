@@ -14,11 +14,11 @@ Technology
 -----------------------------
 
 - Framework: [Sencha Touch 2.0](http://www.sencha.com/products/touch)
-- Authentication: Uses the Google AuthSub authorization process
-- Stock Data: Uses Yahoo! Query Language (YQL) to get the last trade information on the positions
+- Authentication: Uses the [Google AuthSub](https://developers.google.com/accounts/docs/AuthSub) authorization process
+- Stock Data: Uses [Yahoo! Query Language (YQL)](http://developer.yahoo.com/yql/) to get the last trade information on the positions
 
 
 Disclaimer!
 -----------------------------
 
-This project is very much a work in progress. It is not near complete as far as code quality/testability/etc. It was meant to try out the Google Finance API (Deprecated).
+This project is very much a work in progress. It is not near complete as far as code quality/testability/etc. It was meant to try out the [Google Finance API](https://developers.google.com/finance/) (Deprecated).
