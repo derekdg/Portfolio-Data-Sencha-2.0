@@ -34,11 +34,9 @@ Ext.define('PortfolioApp.controller.Main', {
 				tap: 'onLogoutTap'
 			},
 			'portfolios': {
-				//disclose: 'showPositions',
 				itemtap: 'showPositions'
 			},
 			'positions': {
-				//disclose: 'showTransactions',
 				itemtap: 'showTransactions'
 			}
 
@@ -307,15 +305,21 @@ Ext.define('PortfolioApp.controller.Main', {
 			
 			var transactionEntry = entries[i];
 			var transactionData = transactionEntry.gf$transactionData;
+			
+			if (entries.length == 1 && transactionData.shares == 0) {
+				break;
+				
+			} else {
 
-			//Build the portfolio object:
-			var tran = {
-				tranID: transactionEntry.id.$t,
-				tranType: transactionData.type,
-				tranShares: NumberFormatted(transactionData.shares),
-				tranPrice: NumberFormatted(transactionData.gf$price.gd$money[0].amount),
-				tranDate: FormatLongDate(transactionData.date)
-			};
+				//Build the portfolio object:
+				var tran = {
+					tranID: transactionEntry.id.$t,
+					tranType: transactionData.type,
+					tranShares: NumberFormatted(transactionData.shares),
+					tranPrice: NumberFormatted(transactionData.gf$price.gd$money[0].amount),
+					tranDate: FormatLongDate(transactionData.date)
+				};
+			}
 
 			d[i] = tran;			
 		

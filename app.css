@@ -1,4 +1,12 @@
-
+.emptyText {
+    text-align:center;
+    color: #999;
+    height:200px;  
+    display:-webkit-box;
+    -webkit-box-orient: horizontal;        
+    -webkit-box-align:center;
+    -webkit-box-pack:center;
+}
 
 .x-list-item h3 {
 	color: #000000;
